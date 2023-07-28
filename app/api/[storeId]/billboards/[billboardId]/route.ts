@@ -16,6 +16,9 @@ export async function GET(
       where: {
         id: params.billboardId,
       },
+      include: {
+        imageUrl: true,
+      },
     });
 
     return NextResponse.json(billboard);
@@ -102,13 +105,28 @@ export async function PATCH(
       return new NextResponse("Unauthorized", { status: 405 });
     }
 
-    const billboard = await prismadb.billboard.update({
+    await prismadb.billboard.update({
       where: {
         id: params.billboardId,
       },
       data: {
         label,
-        imageUrl,
+        imageUrl: {
+          deleteMany: {},
+        },
+      },
+    });
+
+    const billboard = await prismadb.billboard.update({
+      where: {
+        id: params.billboardId,
+      },
+      data: {
+        imageUrl: {
+          createMany: {
+            data: [...imageUrl.map((image: { url: string }) => image)],
+          },
+        },
       },
     });
 

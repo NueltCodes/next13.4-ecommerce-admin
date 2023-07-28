@@ -9,7 +9,12 @@ import {
 import { useStoreModal } from "@/hooks/useStoreModal";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "./ui/button";
-import { Check, ChevronsUpDown, PlusCircle, Store } from "lucide-react";
+import {
+  Check,
+  ChevronsUpDown,
+  PlusCircle,
+  Store as StoreIcon,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Command,
@@ -20,13 +25,14 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
+import { Store } from "@prisma/client";
 
 type PopoverTriggerProps = React.ComponentPropsWithoutRef<
   typeof PopoverTrigger
 >;
 
 interface StoreSwitcherProps extends PopoverTriggerProps {
-  items: Record<string, any>[];
+  items: Store[];
 }
 
 const StoreSwitcher = ({ className, items = [] }: StoreSwitcherProps) => {
@@ -50,7 +56,7 @@ const StoreSwitcher = ({ className, items = [] }: StoreSwitcherProps) => {
   };
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           onClick={() => setOpen(true)}
@@ -61,55 +67,53 @@ const StoreSwitcher = ({ className, items = [] }: StoreSwitcherProps) => {
           aria-label="Select a store"
           className={cn("w-[200px] justify-between", className)}
         >
-          <Store className="mr-2 h-4 w-4" />
+          <StoreIcon className="mr-2 h-4 w-4" />
           {currentStore?.label}
           <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      {open && (
-        <PopoverContent className="w-[200px] p-0">
-          <Command>
-            <CommandList>
-              <CommandInput placeholder="Search store..." />
-              <CommandEmpty>No store found.</CommandEmpty>
-              <CommandGroup heading="Stores">
-                {formattedItems.map((store) => (
-                  <CommandItem
-                    key={store.value}
-                    onSelect={() => onStoreSelect(store)}
-                    className="text-sm"
-                  >
-                    <Store className="mr-2 h-4 w-4" />
-                    {store.label}
-                    <Check
-                      className={cn(
-                        "ml-auto h-4 w-4",
-                        currentStore?.value === store.value
-                          ? "opacity-100"
-                          : "opacity-0"
-                      )}
-                    />
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </CommandList>
-            <CommandSeparator />
-            <CommandList>
-              <CommandGroup>
+      <PopoverContent className="w-[200px] p-0">
+        <Command>
+          <CommandList>
+            <CommandInput placeholder="Search store..." />
+            <CommandEmpty>No store found.</CommandEmpty>
+            <CommandGroup heading="Stores">
+              {formattedItems.map((store) => (
                 <CommandItem
-                  onSelect={() => {
-                    setOpen(false);
-                    storeModal.onOpen();
-                  }}
+                  key={store.value}
+                  onSelect={() => onStoreSelect(store)}
+                  className="text-sm"
                 >
-                  <PlusCircle className="mr-2 h-5 w-5" />
-                  Create Store
+                  <StoreIcon className="mr-2 h-4 w-4" />
+                  {store.label}
+                  <Check
+                    className={cn(
+                      "ml-auto h-4 w-4",
+                      currentStore?.value === store.value
+                        ? "opacity-100"
+                        : "opacity-0"
+                    )}
+                  />
                 </CommandItem>
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      )}
+              ))}
+            </CommandGroup>
+          </CommandList>
+          <CommandSeparator />
+          <CommandList>
+            <CommandGroup>
+              <CommandItem
+                onSelect={() => {
+                  setOpen(false);
+                  storeModal.onOpen();
+                }}
+              >
+                <PlusCircle className="mr-2 h-5 w-5" />
+                Create Store
+              </CommandItem>
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
     </Popover>
   );
 };

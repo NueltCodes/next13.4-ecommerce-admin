@@ -1,9 +1,7 @@
 "use client";
 
-import { Modal } from "@/components/ui/modal";
 import { useStoreModal } from "@/hooks/useStoreModal";
 import { useEffect } from "react";
-import { useParams } from "next/navigation";
 
 const SetupPage = () => {
   const onOpen = useStoreModal((state) => state.onOpen);

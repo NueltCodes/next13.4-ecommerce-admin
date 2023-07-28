@@ -17,8 +17,8 @@ export async function POST(
     if (!label) {
       return new NextResponse("Label is required", { status: 400 });
     }
-    if (!imageUrl) {
-      return new NextResponse("Image URL is required", { status: 400 });
+    if (!imageUrl || !imageUrl.length) {
+      return new NextResponse("Images are required", { status: 400 });
     }
     if (!params.storeId) {
       return new NextResponse("Store id URL is required", { status: 400 });
@@ -37,7 +37,12 @@ export async function POST(
     const billboard = await prismadb.billboard.create({
       data: {
         label,
-        imageUrl,
+
+        imageUrl: {
+          createMany: {
+            data: [...imageUrl.map((image: { url: string }) => image)],
+          },
+        },
         storeId: params.storeId,
       },
     });
@@ -60,6 +65,9 @@ export async function GET(
     const billboards = await prismadb.billboard.findMany({
       where: {
         storeId: params.storeId,
+      },
+      include: {
+        imageUrl: true,
       },
     });
     return NextResponse.json(billboards);

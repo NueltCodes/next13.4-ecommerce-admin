@@ -28,6 +28,11 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const onCopy = (id: string) => {
+    navigator.clipboard.writeText(id);
+    toast.success("Category ID copied to clipboard.");
+  };
+
   const onConfirm = async () => {
     try {
       setLoading(true);
@@ -42,11 +47,6 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       setOpen(false);
       setLoading(false);
     }
-  };
-
-  const onCopy = (id: string) => {
-    navigator.clipboard.writeText(id);
-    toast.success("Category ID copied to clipboard.");
   };
 
   return (
