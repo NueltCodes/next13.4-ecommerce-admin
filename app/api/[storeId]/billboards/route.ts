@@ -37,13 +37,13 @@ export async function POST(
     const billboard = await prismadb.billboard.create({
       data: {
         label,
+        storeId: params.storeId,
 
         imageUrl: {
           createMany: {
             data: [...imageUrl.map((image: { url: string }) => image)],
           },
         },
-        storeId: params.storeId,
       },
     });
     return NextResponse.json(billboard);

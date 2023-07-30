@@ -106,58 +106,26 @@ export async function PATCH(
         categoryId,
         colorId,
         sizeId,
-
+        images: { deleteMany: {} },
         isFeatured,
         isArchived,
       },
     });
 
-    // Fetch the existing image URLs associated with the product
-    const existingImages = await prismadb.image.findMany({
+    const product = await prismadb.product.update({
       where: {
-        productId: params.productId,
+        id: params.productId,
       },
-    });
-
-    // Extract the image URLs from existing images
-    const existingImageUrls = existingImages.map((image) => image.url);
-
-    // Extract the image URLs from the request body
-    const requestImageUrls = images.map((image) => image.url);
-
-    // Determine which images need to be deleted
-    const imagesToDelete = existingImageUrls.filter(
-      (url) => !requestImageUrls.includes(url)
-    );
-
-    // Determine which images need to be created
-    const imagesToCreate = requestImageUrls.filter(
-      (url) => !existingImageUrls.includes(url)
-    );
-
-    // Delete images that are no longer needed
-    await prismadb.image.deleteMany({
-      where: {
-        productId: params.productId,
-        url: {
-          in: imagesToDelete,
+      data: {
+        images: {
+          createMany: {
+            data: [...images.map((image: { url: string }) => image)],
+          },
         },
       },
     });
 
-    // Create new images
-    await Promise.all(
-      imagesToCreate.map((url) =>
-        prismadb.image.create({
-          data: {
-            url,
-            productId: params.productId,
-          },
-        })
-      )
-    );
-
-    return new NextResponse("Product updated.", { status: 200 });
+    return NextResponse.json(product);
   } catch (error) {
     console.log("[PRODUCT_PATCH]", error);
     return new NextResponse("Internal error", { status: 500 });

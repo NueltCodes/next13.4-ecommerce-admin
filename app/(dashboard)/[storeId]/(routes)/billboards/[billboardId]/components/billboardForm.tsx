@@ -145,6 +145,7 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({
                 <FormLabel>Images</FormLabel>
                 <FormControl>
                   <ImageUpload
+                    open={open}
                     value={field.value.map((image) => image.url)}
                     disabled={loading}
                     onChange={(url) =>
