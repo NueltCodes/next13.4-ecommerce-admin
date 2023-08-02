@@ -1,5 +1,6 @@
 import prismadb from "@/lib/prismadb";
 import { ProductForm } from "./components/productForm";
+import { auth } from "@clerk/nextjs";
 
 const ProductPage = async ({
   params,
@@ -14,6 +15,9 @@ const ProductPage = async ({
       images: true,
     },
   });
+  const { user } = auth();
+  const use = user;
+  console.log(use?.id);
 
   const categories = await prismadb.category.findMany({
     where: {

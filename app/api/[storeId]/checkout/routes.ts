@@ -50,6 +50,7 @@ export async function POST(
     data: {
       storeId: params.storeId,
       isPaid: false,
+      status: "Processing",
       orderItems: {
         create: productIds.map((productId: string) => ({
           product: {

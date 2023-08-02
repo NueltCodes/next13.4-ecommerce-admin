@@ -1,10 +1,14 @@
+// Admin app
 import { authMiddleware } from "@clerk/nextjs";
 
-// This example protects all routes including api/trpc routes
-// Please edit this to allow other routes to be public as needed.
-// See https://clerk.com/docs/nextjs/middleware for more information about configuring your middleware
 export default authMiddleware({
   publicRoutes: ["/api/:path*"],
+  ignoredRoutes: [
+    // Add any routes in the admin app that should not be protected by Clerk authentication
+    // For example:
+    "/api/",
+    // "/admin-public-api/*",
+  ],
 });
 
 export const config = {
