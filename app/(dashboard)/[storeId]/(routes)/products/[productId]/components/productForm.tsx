@@ -101,6 +101,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const onSubmit = async (data: ProductFormValues) => {
     try {
       setLoading(true);
+      if (!data?.images.length) {
+        toast.error("Image must be uploaded");
+        return;
+      }
       if (initialData) {
         await axios.patch(
           `/api/${params.storeId}/products/${params.productId}`,
@@ -113,7 +117,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       router.push(`/${params.storeId}/products`);
       toast.success(toastMessage);
     } catch (error: any) {
-      toast.error("Something went wrong.");
+      toast.error("Something went wrong, please try again later.");
     } finally {
       setLoading(false);
     }
