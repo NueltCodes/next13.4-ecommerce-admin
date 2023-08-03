@@ -83,6 +83,7 @@ model Product {
   name        String
   price       Decimal
   units       Int
+  poplarityCount       Int?
   ratings     Int?
   isFeatured  Boolean   @default(false)
   isArchived  Boolean   @default(false)
@@ -131,7 +132,7 @@ model Image {
 model Order {
   id        String    @id @default(uuid())
   storeId     String    // Foreign Key to Store
-  status     String  
+  // status     String  
   store       Store     @relation("StoreToOrder", fields: [storeId], references: [id])
   orderItems OrderItem[] // Relation to OrderItem model
   isPaid     Boolean   @default(false)
@@ -150,6 +151,7 @@ model OrderItem {
   order     Order   @relation(fields: [orderId], references: [id])
   productId String  
   product   Product @relation(fields: [productId], references: [id])
+  quantity  Int      // Add a quantity field to keep track of the quantity of each product in the order
 
   @@index([orderId])
   @@index([productId])

@@ -1,12 +1,14 @@
-import prismadb from "@/lib/prismadb";
-import { stripe } from "@/lib/stripe";
-import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { NextResponse } from "next/server";
+import axios from "axios";
+
+import { stripe } from "@/lib/stripe";
+import prismadb from "@/lib/prismadb";
 
 const corsHeaders = {
-  "Access-Control-Origin": "*",
-  "Access-Control-Allow-Methods": "GET,POST,DELETE,OPTIONS",
-  "Access-Control-Allow-Headers": "Contenr-Type, Authoriztion",
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
 
 export async function OPTIONS() {
@@ -17,10 +19,14 @@ export async function POST(
   req: Request,
   { params }: { params: { storeId: string } }
 ) {
-  const { productIds } = await req.json();
+  const { productIds, qty } = await req.json(); // Get the quantity data from the frontend
 
   if (!productIds || productIds.length === 0) {
     return new NextResponse("Product ids are required", { status: 400 });
+  }
+
+  if (!qty) {
+    return new NextResponse("Quantity data is required", { status: 400 });
   }
 
   const products = await prismadb.product.findMany({
@@ -33,9 +39,12 @@ export async function POST(
 
   const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
 
+  // Update the line_items array with the quantity chosen by the user
   products.forEach((product) => {
+    const productQty = qty[product.id] || 0;
+
     line_items.push({
-      quantity: 1,
+      quantity: productQty,
       price_data: {
         currency: "USD",
         product_data: {
@@ -50,7 +59,6 @@ export async function POST(
     data: {
       storeId: params.storeId,
       isPaid: false,
-      status: "Processing",
       orderItems: {
         create: productIds.map((productId: string) => ({
           product: {
@@ -58,6 +66,7 @@ export async function POST(
               id: productId,
             },
           },
+          quantity: qty[productId] || 0, // Save the quantity chosen by the user to the order item
         })),
       },
     },
