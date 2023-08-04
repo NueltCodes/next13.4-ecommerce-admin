@@ -1,9 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { useParams, usePathname } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 
 import { cn } from "@/lib/utils";
+
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "./ui/button";
+import { Check, CheckCheckIcon, ChevronsUpDown } from "lucide-react";
+import { useState } from "react";
 
 const MainNav = ({
   className,
@@ -55,25 +71,82 @@ const MainNav = ({
     },
   ];
 
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState("");
+  const router = useRouter();
+  console.log(value);
   return (
     <nav
       className={cn("flex items-center space-x-4 lg:space-x-6", className)}
       {...props}
     >
-      {routes.map((route) => (
-        <Link
-          key={route.href}
-          href={route.href}
-          className={cn(
-            "text-sm font-medium transition-colors hover:text-primary",
-            route.active
-              ? "text-black dark:text-white"
-              : "text-muted-foreground"
-          )}
-        >
-          {route.label}
-        </Link>
-      ))}
+      <div className="lg:flex items-center space-x-4 lg:space-x-6 hidden">
+        {routes.map((route) => (
+          <Link
+            key={route.href}
+            href={route.href}
+            className={cn(
+              "text-sm font-medium transition-colors hover:text-primary",
+              route.active
+                ? "text-black dark:text-white"
+                : "text-muted-foreground"
+            )}
+          >
+            {route.label}
+          </Link>
+        ))}
+      </div>
+      <div className="block lg:hidden">
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={open}
+              className="w-[200px] justify-between"
+            >
+              Navigate...
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[200px] p-0">
+            <Command>
+              <CommandInput placeholder="Search Links..." />
+              <CommandEmpty>No links found.</CommandEmpty>
+              <CommandGroup>
+                {routes.map((route) => (
+                  <CommandItem
+                    key={route.href}
+                    onSelect={(currentValue) => {
+                      setValue(currentValue === value ? "" : currentValue);
+                      setOpen(false);
+                    }}
+                  >
+                    <div
+                      onClick={() => router.push(`${route.href}`)}
+                      className={cn(
+                        "px-4 py-3 flex items-center gap-3 transition-colors",
+                        route.active
+                          ? "bg-teal-600 text-white w-full"
+                          : "text-foreground"
+                      )}
+                    >
+                      {route.label}
+                      <Check
+                        size={15}
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          route.active ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                    </div>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      </div>
     </nav>
   );
 };
