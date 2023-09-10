@@ -17,7 +17,7 @@ const ProductPage = async ({
   });
   const { user } = auth();
   const use = user;
-  console.log(use?.id);
+  // console.log(use?.id);
 
   const categories = await prismadb.category.findMany({
     where: {
